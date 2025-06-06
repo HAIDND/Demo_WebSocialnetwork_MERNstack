@@ -28,18 +28,21 @@ dotenv.config();
 const corsOptions = {
   //origin: process.env.CORS_ORIGIN,
   origin: "http://localhost:5173",
-  // // URL của frontend  " http://localhost:5173" ||
+  // // URL của frontend  " http://localhost:5173"  ||
   credentials: true, // Cho phép cookie
 };
 // Kết nối tới MongoDB
+// mongoose
+//   .connect(process.env.MONGO_URI, {
+//     useNewUrlParser: true,
+//     useUnifiedTopology: true,
+//   })
+//   .then(() => console.log("Connected to MongoDB"))
+//   .catch((error) => console.error("MongoDB connection error:", error));
 mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGO_URI)
   .then(() => console.log("Connected to MongoDB"))
   .catch((error) => console.error("MongoDB connection error:", error));
-
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
