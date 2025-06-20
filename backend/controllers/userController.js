@@ -3,7 +3,7 @@ const Group = require("../models/group");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const moment = require("moment");
-const { createNode } = require("./neo4j/neo4jService");
+const { createUser } = require("./neo4j/Neo4jUserController");
 
 // Đăng ký người dùng mới
 exports.register = async (req, res) => {
@@ -41,11 +41,15 @@ exports.register = async (req, res) => {
     });
 
     await newUser.save();
-    console.log(newUser);
-    const neo4jCreateNodeUser = await createNode("User", {
-      id: newUser._id.toString(),
-      gmail: newUser.email,
-    });
+    // console.log(newUser);
+
+    const neo4jCreateNodeUser = await createUser(newUser);
+    // createNode("User", {
+    //   id: newUser._id.toString(),
+    //   email: newUser.email,
+    //   avatar: newUser.avatar,
+    //   username: newUser.username,
+    // });
     res.status(201).json({ message: "User registered successfully" });
   } catch (error) {
     console.error(error);

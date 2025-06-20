@@ -7,19 +7,20 @@ import {
   Avatar,
   Typography,
   Badge,
+  useMediaQuery,
 } from "@mui/material";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTheme } from "@mui/material/styles"; // Import theme hook
-import { getListFriend } from "~/services/friendServices/friendService"; // Giả sử bạn có hàm API này
-import IsUserActive, { CheckUserActive } from "../IsUserActive";
+import { useTheme } from "@mui/material/styles";
+import { getListFriend } from "~/services/friendServices/friendService";
+import { CheckUserActive } from "../IsUserActive";
 
 const RightListFriend = () => {
   const [friends, setFriends] = useState([]);
   const navigate = useNavigate();
-  const theme = useTheme(); // Truy cập theme
+  const theme = useTheme();
+  const isSmallScreen = useMediaQuery(theme.breakpoints.down("sm"));
 
-  // Gọi API lấy danh sách bạn bè
   useEffect(() => {
     const fetchFriends = async () => {
       try {
@@ -32,47 +33,45 @@ const RightListFriend = () => {
     fetchFriends();
   }, []);
 
-  // Xử lý điều hướng khi click vào bạn bè
   const handleFriendClick = (id) => {
     navigate(`/profile/${id}`);
   };
 
-  // Nếu danh sách bạn bè rỗng, không render component
-  if (friends.length === 0) {
-    return null;
-  }
+  if (friends.length === 0) return null;
 
   return (
     <Box
       sx={{
-        display: "flex",
-        flexDirection: "column",
-        gap: theme.spacing(2),
-        width: 360,
-        padding: theme.spacing(3),
+        width: isSmallScreen ? "100%" : 360,
+        px: 2,
+        py: 3,
+        mx: "auto",
         backgroundColor: theme.palette.background.paper,
-        borderRadius: theme.shape.borderRadius,
-        boxShadow: theme.shadows[3],
-        maxWidth: 300,
-        ml: theme.spacing(7),
-        mb: 3,
-        mt: 3,
+        borderRadius: 4,
+        boxShadow: 4,
+        mt: 4,
+        mb: 4,
       }}
     >
       <Typography
         variant="h5"
-        sx={{ textAlign: "center", marginBottom: theme.spacing(0) }}
-        color="primary"
+        align="center"
+        sx={{
+          fontWeight: 600,
+          color: theme.palette.primary.main,
+          mb: 3,
+        }}
       >
         My Friends
       </Typography>
-      <List>
+
+      <List disablePadding>
         {friends.map((friend) => (
           <FriendCardItem
             key={friend._id}
             friend={friend}
             handleFriendClick={handleFriendClick}
-          /> // Sửa ở đây
+          />
         ))}
       </List>
     </Box>
@@ -80,20 +79,25 @@ const RightListFriend = () => {
 };
 
 function FriendCardItem({ friend, handleFriendClick }) {
-  const theme = useTheme(); // Truy cập theme
-  const [isOnline, setIsOnline] = useState(null);
-  // Gọi checkOnline() khi component mount
-  useEffect(() => {}, [CheckUserActive(friend?.email)]); // Chỉ gọi lại khi friend.email thay đổi
+  const theme = useTheme();
+  const isOnline = CheckUserActive(friend?.email);
+
   return (
     <ListItem
-      key={friend._id}
       button
       onClick={() => handleFriendClick(friend._id)}
       sx={{
-        "&:hover": { backgroundColor: theme.palette.action.hover },
-        borderBottom: `1px solid ${theme.palette.divider}`,
-        display: "flex",
-        alignItems: "center",
+        py: 1.5,
+        px: 2,
+        borderRadius: 3,
+        mb: 1.5,
+        boxShadow: 1,
+        transition: "all 0.2s ease-in-out",
+        "&:hover": {
+          backgroundColor: theme.palette.action.hover,
+          transform: "scale(1.02)",
+          boxShadow: 3,
+        },
       }}
     >
       <ListItemAvatar>
@@ -101,22 +105,27 @@ function FriendCardItem({ friend, handleFriendClick }) {
           overlap="circular"
           anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
           variant="dot"
-          size="medium"
-          color={CheckUserActive(friend?.email) ? "success" : "error"}
+          color={isOnline ? "success" : "default"}
         >
-          <Avatar alt={friend.name} src={friend.avatar} />
+          <Avatar alt={friend.username} src={friend.avatar} />
         </Badge>
       </ListItemAvatar>
+
       <ListItemText
         primary={friend.username}
         secondary={friend.email}
         primaryTypographyProps={{
-          color: theme.palette.text.primary,
-          fontWeight: "bold",
+          fontWeight: 600,
+          fontSize: "1rem",
         }}
-        secondaryTypographyProps={{ color: theme.palette.text.secondary }}
+        secondaryTypographyProps={{
+          fontSize: "0.85rem",
+          color: theme.palette.text.secondary,
+        }}
+        sx={{ ml: 1 }}
       />
     </ListItem>
   );
 }
+
 export default RightListFriend;

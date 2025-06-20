@@ -60,7 +60,7 @@ const NewPost = () => {
       const isVideo = file.type.startsWith("video/");
       if (isImage) {
         setSelectedImage(URL.createObjectURL(file)); // Create a preview for the image
-        setImage(file);
+        setImage(file); // Store the image file for submission
       }
       if (isVideo) {
         setSelectedVideo(URL.createObjectURL(file)); // Create a preview for the video

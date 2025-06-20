@@ -1,44 +1,25 @@
-// const express = require("express");
-// const cors = require("cors");
-
-// const jwt = require("jsonwebtoken");
-
-// const app = express();
-// app.use(cors());
-// app.use(express.json());
-
-// MongoDB connect
-// mongoose
-//   .connect(process.env.MONGO_URI)
-//   .then(() => console.log("MongoDB connected"))
-//   .catch((err) => console.log("MongoDB error:", err));
-
-// // User Schema
-// const User = mongoose.model(
-//   "User",
-//   new mongoose.Schema({
-//     email: String,
-//     name: String,
-//     picture: String,
-//     googleId: String,
-//   })
-// );
-//
 const dotenv = require("dotenv");
 dotenv.config();
+
 const mongoose = require("mongoose");
 const express = require("express");
 const googleAuthRoute = express.Router();
 const { OAuth2Client } = require("google-auth-library");
 const jwt = require("jsonwebtoken");
+
 // Google OAuth Client
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-//add
+
+// Import models and services
 const User = require("../models/User");
-// googleAuthRoute.post("/:groupId", getGroupMessage); // Lấy tin nhắn của nhóm ko auth
+const { createUser } = require("../controllers/neo4j/Neo4jUserController");
+
+// Google Auth Route
 googleAuthRoute.post("/auth", async (req, res) => {
   const { token } = req.body;
+
   try {
+    // Verify Google token
     const ticket = await client.verifyIdToken({
       idToken: token,
       audience: process.env.GOOGLE_CLIENT_ID,
@@ -46,69 +27,133 @@ googleAuthRoute.post("/auth", async (req, res) => {
 
     const payload = ticket.getPayload();
     const { sub, email, name, picture } = payload;
-    // const newUser = new User({
-    //   username: name,
-    //   email: email,
-    //   avatar: picture,
-    //   authType: "google",
-    // });
 
-    // await newUser.save();
+    // Check if user already exists in MongoDB
     let user = await User.findOne({ email });
+    let isNewUser = false;
+
     if (!user) {
+      // User doesn't exist, create new user in MongoDB
       user = await User.create({
         username: name,
         email: email,
         avatar: picture,
         authType: "google",
-        // email,
-        // name,
-        // picture,
+        googleId: sub, // Store Google ID for reference
       });
-    }
-    const jwtToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
 
-    res.json({ token: jwtToken, userId: user._id });
+      isNewUser = true;
+      console.log("New Google user created:", email);
+
+      // Create user node in Neo4j for new users only
+      try {
+        await createUser(user);
+        console.log("Neo4j user node created for:", email);
+      } catch (neo4jError) {
+        console.error("Error creating Neo4j user node:", neo4jError);
+        // Continue execution even if Neo4j fails
+      }
+    } else {
+      console.log("Existing user logged in:", email);
+
+      // Optionally update user info if needed
+      if (user.username !== name || user.avatar !== picture) {
+        user.username = name;
+        user.avatar = picture;
+        await user.save();
+        console.log("User info updated:", email);
+      }
+    }
+
+    // Generate JWT token
+    const jwtToken = jwt.sign(
+      {
+        id: user._id,
+        email: user.email,
+        authType: user.authType,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" } // Extended to 7 days for better UX
+    );
+
+    // Return response
+    res.json({
+      token: jwtToken,
+      userId: user._id,
+      user: {
+        id: user._id,
+        email: user.email,
+        username: user.username,
+        avatar: user.avatar,
+        authType: user.authType,
+      },
+      isNewUser: isNewUser,
+    });
   } catch (err) {
     console.error("Google login error:", err);
-    res.status(400).json({ error: "Login failed" });
+
+    // More specific error handling
+    if (err.message && err.message.includes("Token used too early")) {
+      return res
+        .status(400)
+        .json({ error: "Token chưa hợp lệ, vui lòng thử lại" });
+    }
+
+    if (err.message && err.message.includes("Token used too late")) {
+      return res
+        .status(400)
+        .json({ error: "Token đã hết hạn, vui lòng đăng nhập lại" });
+    }
+
+    res.status(400).json({
+      error: "Đăng nhập Google thất bại",
+      details: process.env.NODE_ENV === "development" ? err.message : undefined,
+    });
   }
 });
 
+// Temporary User Schema for OTP verification (if needed for other auth methods)
 const TempUserSchema = new mongoose.Schema({
-  email: String,
-  password: String,
-  otp: String,
-  createdAt: { type: Date, default: Date.now, expires: 300 }, // Xóa sau 5 phút
+  email: { type: String, required: true },
+  password: { type: String, required: true },
+  otp: { type: String, required: true },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+    expires: 300, // Auto-delete after 5 minutes
+  },
 });
+
 const TempUser = mongoose.model("TempUser", TempUserSchema);
 
-// // Step 1: Người dùng gửi email + password
-// app.post("/api/auth/register", async (req, res) => {
-//   const { email, password } = req.body;
-//   const otp = Math.floor(100000 + Math.random() * 900000).toString(); // OTP 6 chữ số
+// Optional: Add a route to get user profile
+googleAuthRoute.get("/profile", async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(" ")[1];
 
-//   await TempUser.create({ email, password, otp });
-//   await sendMail(email, otp);
-//   res.json({ message: "OTP đã được gửi đến email." });
-// });
+    if (!token) {
+      return res.status(401).json({ error: "Token không được cung cấp" });
+    }
 
-// // Step 2: Xác minh OTP
-// app.post("/api/auth/verify-otp", async (req, res) => {
-//   const { email, otp } = req.body;
-//   const tempUser = await TempUser.findOne({ email, otp });
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id).select("-password");
 
-//   if (!tempUser) {
-//     return res.status(400).json({ error: "OTP không đúng hoặc đã hết hạn." });
-//   }
+    if (!user) {
+      return res.status(404).json({ error: "Người dùng không tồn tại" });
+    }
 
-//   // Tạo user chính thức
-//   await User.create({ email: tempUser.email, password: tempUser.password });
-//   await TempUser.deleteOne({ _id: tempUser._id });
+    res.json({ user });
+  } catch (err) {
+    console.error("Profile fetch error:", err);
+    res.status(401).json({ error: "Token không hợp lệ" });
+  }
+});
 
-//   res.json({ message: "Đăng ký thành công!" });
-// });
+// Optional: Add a logout route
+googleAuthRoute.post("/logout", (req, res) => {
+  // Since JWT is stateless, we just return success
+  // In a production app, you might want to maintain a blacklist of tokens
+  res.json({ message: "Đăng xuất thành công" });
+});
 
 module.exports = googleAuthRoute;

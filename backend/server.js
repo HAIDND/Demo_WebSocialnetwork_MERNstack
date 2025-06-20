@@ -22,11 +22,12 @@ const mongoose = require("mongoose");
 const { setupSocket } = require("./socketIO/socket");
 const groupMessageRoute = require("./routes/groupMessage.route");
 const googleAuthRoute = require("./utils/googleAuth.route");
+const neo4jRecommendRoutes = require("./routes/neo4jRecommend.route");
 
 dotenv.config();
 //âsad
 const corsOptions = {
-  //origin: process.env.CORS_ORIGIN,
+  // origin: process.env.CORS_ORIGIN,
   origin: "http://localhost:5173",
   // // URL của frontend  " http://localhost:5173"  ||
   credentials: true, // Cho phép cookie
@@ -70,10 +71,10 @@ app.use("/api/friends", friendRoutes);
 app.use("/api/posts", postRoutes);
 app.use("/api/groups", groupRoutes);
 app.use("/api/chat", chatRoutes); // Prefix /api/chat cho các route chat
-app.use("/api/notification", notificationRoutes);
+app.use("/api/notifications", notificationRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/chatbot", chatbotRoutes);
-
+app.use("/api/recommnend", neo4jRecommendRoutes);
 // Routes
 app.use("/api/locations", locationRoutes);
 // Routes

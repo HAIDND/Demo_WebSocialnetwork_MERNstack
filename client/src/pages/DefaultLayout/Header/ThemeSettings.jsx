@@ -1,73 +1,125 @@
 import React, { useEffect, useState } from "react";
-import { ThemeProvider, createTheme, CssBaseline } from "@mui/material";
-import { Box, Typography, RadioGroup, FormControlLabel, Radio, List, ListItem, Switch } from "@mui/material";
+import {
+  Box,
+  Typography,
+  RadioGroup,
+  FormControlLabel,
+  Radio,
+  List,
+  ListItem,
+  Switch,
+  Paper,
+  Divider,
+  Stack,
+} from "@mui/material";
+import { styled } from "@mui/material/styles";
 
-const ThemeSettings = ({ themeColor, setThemeColor, darkMode, setDarkMode, themeSecondary, setThemeSecondary }) => {
-    // const [themeColor, setThemeColor] = useState("#2196f3"); // Màu mặc định
-    const [headerBackground, setHeaderBackground] = useState(false);
-    const [menuPosition, setMenuPosition] = useState(false);
-    // const [darkMode, setDarkMode] = useState(false);
+// Chấm màu
+const ColorDot = styled("span")(({ color }) => ({
+  display: "inline-block",
+  width: 16,
+  height: 16,
+  borderRadius: "50%",
+  backgroundColor: color,
+  marginRight: 8,
+  border: "1px solid #ccc",
+}));
 
-    // Cập nhật localStorage khi theme thay đổi
-    useEffect(() => {
-        sessionStorage.setItem("themeColor", themeColor);
-        sessionStorage.setItem("darkMode", darkMode);
-        sessionStorage.setItem("themeSecondary", themeSecondary);
-    }, [themeColor, themeSecondary, darkMode]);
-    // Tạo theme tùy chỉnh
+const colorOptions = [
+  { label: "Red", value: "#f44336", secondary: "#f3f3f3" },
+  { label: "Green", value: "#4caf50", secondary: "#FFCC00" },
+  { label: "Blue", value: "#2196f3", secondary: "#FFB347" },
+  { label: "Purple", value: "#9c27b0", secondary: "#FFF1F1" },
+  { label: "Teal", value: "#009688", secondary: "#FFD699" },
+];
 
-    const handleColorChange = (event) => {
-        setThemeColor(event.target.value);
-        switch (event.target.value) {
-            case "#f44336": //red
-                setThemeSecondary("#f3f3f3");
-                break;
-            case "#4caf50": // green
-                setThemeSecondary("#FFCC00");
-                break;
-            case "#2196f3":
-                setThemeSecondary("#FFB347"); // blue
-                break;
-            case "#ffeb3b": //yellow
-                setThemeSecondary("#000000");
-                break;
-            default:
-                break;
-        }
-    };
+const ThemeSettings = ({
+  themeColor,
+  setThemeColor,
+  darkMode,
+  setDarkMode,
+  themeSecondary,
+  setThemeSecondary,
+}) => {
+  const [headerBackground, setHeaderBackground] = useState(false);
 
-    return (
-        <Box sx={{ p: 2, backgroundColor: headerBackground ? "primary.main" : "inherit", color: "text.primary" }}>
-            <Typography variant="h6" color="primary">
-                Theme Customization
-            </Typography>
+  useEffect(() => {
+    sessionStorage.setItem("themeColor", themeColor);
+    sessionStorage.setItem("darkMode", darkMode);
+    sessionStorage.setItem("themeSecondary", themeSecondary);
+  }, [themeColor, themeSecondary, darkMode]);
 
-            <Typography variant="body2">Choose Color Theme</Typography>
-            <RadioGroup value={themeColor} onChange={handleColorChange}>
-                <FormControlLabel value="#f44336" control={<Radio />} label="Red" />
-                <FormControlLabel value="#4caf50" control={<Radio />} label="Green" />
-                <FormControlLabel value="#2196f3" control={<Radio />} label="Blue" />
-                <FormControlLabel value="#ffeb3b" control={<Radio />} label="Yellow" />
-            </RadioGroup>
+  const handleColorChange = (event) => {
+    const newColor = event.target.value;
+    setThemeColor(newColor);
 
-            <List>
-                <ListItem sx={{ display: "flex", justifyContent: "space-between" }}>
-                    <Typography variant="body2">Hight light </Typography>
-                    <Switch checked={headerBackground} onChange={() => setHeaderBackground(!headerBackground)} />
-                </ListItem>
-                {/* 
-                <ListItem sx={{ display: "flex", justifyContent: "space-between" }}>
-                    <Typography variant="body2">Menu Position</Typography>
-                    <Switch checked={menuPosition} onChange={() => setMenuPosition(!menuPosition)} />
-                </ListItem> */}
+    const selected = colorOptions.find((c) => c.value === newColor);
+    if (selected) {
+      setThemeSecondary(selected.secondary);
+    }
+  };
 
-                <ListItem sx={{ display: "flex", justifyContent: "space-between" }}>
-                    <Typography variant="body2">Dark Mode</Typography>
-                    <Switch checked={darkMode} onChange={() => setDarkMode(!darkMode)} />
-                </ListItem>
-            </List>
-        </Box>
-    );
+  return (
+    <Paper
+      elevation={3}
+      sx={{
+        p: 3,
+        maxWidth: 400,
+        borderRadius: 3,
+        mx: "auto",
+        bgcolor: headerBackground ? "primary.light" : "background.paper",
+      }}
+    >
+      <Typography variant="h5" fontWeight={600} mb={2} color="primary">
+        🎨 Theme Customization
+      </Typography>
+
+      <Divider sx={{ mb: 2 }} />
+
+      <Typography variant="body1" fontWeight={500} gutterBottom>
+        Select Theme Color
+      </Typography>
+
+      <RadioGroup value={themeColor} onChange={handleColorChange}>
+        <Stack spacing={1}>
+          {colorOptions.map((color) => (
+            <FormControlLabel
+              key={color.value}
+              value={color.value}
+              control={<Radio />}
+              label={
+                <Box display="flex" alignItems="center">
+                  <ColorDot color={color.value} />
+                  {color.label}
+                </Box>
+              }
+            />
+          ))}
+        </Stack>
+      </RadioGroup>
+
+      <Divider sx={{ my: 2 }} />
+
+      <List dense>
+        <ListItem
+          sx={{ display: "flex", justifyContent: "space-between", px: 0 }}
+        >
+          <Typography variant="body2">Highlight Header</Typography>
+          <Switch
+            checked={headerBackground}
+            onChange={() => setHeaderBackground(!headerBackground)}
+          />
+        </ListItem>
+
+        <ListItem
+          sx={{ display: "flex", justifyContent: "space-between", px: 0 }}
+        >
+          <Typography variant="body2">Dark Mode</Typography>
+          <Switch checked={darkMode} onChange={() => setDarkMode(!darkMode)} />
+        </ListItem>
+      </List>
+    </Paper>
+  );
 };
 
 export default ThemeSettings;

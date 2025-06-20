@@ -11,7 +11,7 @@ exports.getLocations = async (req, res) => {
     const skip = (page - 1) * limit;
 
     const locations = await Locations.find()
-      .sort({ createdAt: -1 }) // mới nhất lên trước
+      .sort({ createdAt: 1 }) // mới nhất lên trước
       .skip(skip)
       .limit(limit);
 

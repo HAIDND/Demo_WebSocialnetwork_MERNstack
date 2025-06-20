@@ -1,58 +1,94 @@
-// models/Notification.js
+// ===== MONGOOSE MODEL =====
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 
-const notificationSchema = new mongoose.Schema(
+// Schema cho người gửi notification
+const senderSchema = new Schema(
   {
-    senderId: {
-      type: String,
-      ref: "User",
-    },
-    senderName: {
-      type: String,
-      // required: true,
-    },
-    senderAvatar: {
-      type: String,
-      // required: true,
-    },
-    receiverId: {
-      type: String,
+    id: {
+      type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
-    receiverName: {
+    avatar: {
       type: String,
+      default: "",
     },
+    username: {
+      type: String,
+      required: true,
+    },
+  },
+  { _id: false }
+);
+
+// Schema cho từng notification item
+const notificationItemSchema = new Schema(
+  {
     type: {
       type: String,
-      // enum: ["like", "comment", "message", "follow", "post"],
+      enum: ["friend_request", "like_post", "comment_post", "friend_post"],
       required: true,
     },
-    postId: {
-      type: String,
-      ref: "Post",
-      default: null,
+    sender: {
+      type: senderSchema,
+      required: true,
     },
-    messageId: {
+    messageNote: {
       type: String,
-      ref: "Message",
-      default: null,
+      required: true,
+    },
+    linkClick: {
+      type: String,
+      default: "",
     },
     isRead: {
       type: Boolean,
       default: false,
     },
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+    // Các trường bổ sung cho từng loại notification
+    postId: {
+      type: Schema.Types.ObjectId,
+      ref: "Post",
+      default: null,
+    },
+    commentId: {
+      type: Schema.Types.ObjectId,
+      ref: "Comment",
+      default: null,
+    },
   },
-  { timestamps: true }
+  { _id: true }
 );
 
-module.exports = mongoose.model("Notification", notificationSchema);
+// Schema chính cho notification của user
+const userNotificationSchema = new Schema(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      unique: true,
+      index: true,
+    },
+    notifications: [notificationItemSchema],
+    unreadCount: {
+      type: Number,
+      default: 0,
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
-// 	Giải thích
-// senderId	ID của user tạo thông báo (vd: người like, nhắn tin)
-// receiverId	ID của user nhận thông báo
-// type	Loại thông báo: like, comment, message, post, follow...
-// postId	Nếu là thông báo liên quan đến post
-// messageId	Nếu là thông báo liên quan đến tin nhắn
-// isRead	Đã đọc hay chưa
-// timestamps	Tự động tạo createdAt và updatedAt
+// Index để tối ưu query
+userNotificationSchema.index({ userId: 1 });
+userNotificationSchema.index({ "notifications.isRead": 1 });
+userNotificationSchema.index({ "notifications.createdAt": -1 });
+
+module.exports = mongoose.model("UserNotification", userNotificationSchema);

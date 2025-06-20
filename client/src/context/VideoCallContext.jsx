@@ -121,6 +121,8 @@ const VideoCallProvider = ({ children }) => {
       });
       //socket on loading initial call video
       socket.on("incomingCall", ({ from, name, signal }) => {
+        console.log("incomingCall:", name);
+        setOpponentName(name);
         setCall({ isReceivingCall: true, from, name, signal });
       });
       /// socket on receive messs
@@ -211,9 +213,8 @@ const VideoCallProvider = ({ children }) => {
       // Set partner ID first
       setPartnerUserId(targetId);
 
-      // Handle peer events
+      // Handle peer events ({ targetId, signalData, senderId, senderName })
       peer.on("signal", (data) => {
-        console.log("Signaling:", data);
         socket.emit("initiateCall", {
           targetId,
           signalData: data,

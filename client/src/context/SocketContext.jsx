@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import sockets from "./SocketInitial"; // Import socket từ file trên
 import { CurrentUser } from "~/context/GlobalContext";
-import { callSound } from "~/assets/RingNotifi/audioNotifi";
+import { callSound, notifiSound } from "~/assets/RingNotifi/audioNotifi";
 
 import CallVideos from "~/pages/Chatting/CallVideos";
 import { VideoCallProvider } from "./VideoCallContext";
@@ -62,9 +62,15 @@ export const SocketProvider = ({ children, userId }) => {
       console.log("new mess is " + message);
       callSound.play();
     };
+    socket.on("notification", (notification) => {
+      // Hiển thị thông báo popup/toast/reload
+      notifiSound.play();
+      console.log("📥 Notification mới:", notification);
+    });
     socket.on("private_message", handleListenMessage);
     return () => {
       socket.off("private_message");
+      socket.off("notification");
     };
   }, [haveNewMess]);
   return (

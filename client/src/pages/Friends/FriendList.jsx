@@ -80,6 +80,7 @@ const FriendRequestCard = ({ request, handleDeleteFriend }) => {
 };
 
 const FriendRequestList = ({ requests, handleDeleteFriend }) => {
+  console.log(requests);
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h6" fontWeight="600" mb={2}>
@@ -95,7 +96,7 @@ const FriendRequestList = ({ requests, handleDeleteFriend }) => {
       </Typography>
       <Grid container spacing={2}>
         {requests.map((request) => (
-          <Grid item key={request.id}>
+          <Grid item key={request._id}>
             <FriendRequestCard
               request={request}
               handleDeleteFriend={handleDeleteFriend}

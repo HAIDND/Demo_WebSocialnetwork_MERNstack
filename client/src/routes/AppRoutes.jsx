@@ -25,6 +25,7 @@ import RecommendPage from "~/pages/RecommendLocation/RecommendPage";
 import { RecommendContext } from "~/pages/RecommendLocation/RecommendContext";
 import RecommendFromInput from "~/pages/RecommendLocation/RecommendFromInput";
 import IsLoadingAction from "~/components/Elements/IsLoadingAction";
+import PostDetail from "~/pages/PostPage/PostDetail";
 
 export const routesArray = [
   ///public routes
@@ -111,6 +112,14 @@ export const routesArray = [
     element: (
       <PrivateRoute>
         <Profile />
+      </PrivateRoute>
+    ),
+  },
+  {
+    path: "/post/:postId",
+    element: (
+      <PrivateRoute>
+        <PostDetail />
       </PrivateRoute>
     ),
   },

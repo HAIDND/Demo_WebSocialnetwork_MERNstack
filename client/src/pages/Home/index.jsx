@@ -10,6 +10,8 @@ const HomePage = ({ login }) => {
     <>
       <Box
         sx={{
+          background:
+            "linear-gradient(135deg,rgb(234, 234, 234) 0%,rgba(59, 33, 227, 0.78) 100%)",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",

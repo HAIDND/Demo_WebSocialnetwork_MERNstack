@@ -1,0 +1,44 @@
+_id,userId,userEmail,locationId,locationName,rating,comment,createdAt,__v
+681ca671a331452272deae9c,67cfb98a3152742c360ebba6,admin@gmail.com,681c78f6479a3cde5c8e2d7b,Vườn quốc gia U Minh Thượng,5,,2025-05-08T12:41:21.415Z,0
+681caed0a331452272deaec1,67cfb98a3152742c360ebba6,admin@gmail.com,681cae84479a3cde5c8e2ffa,Thành cổ Diên Khánh,4,good,2025-05-11T11:04:27.791Z,0
+681d622b2f9a29712858a2fc,67cfb98a3152742c360ebba6,admin@gmail.com,681cae84479a3cde5c8e3000,Vườn quốc gia U Minh Thượng,3,tạm,2025-05-11T10:13:21.648Z,0
+681d69b32f9a29712858a365,67cfb98a3152742c360ebba6,admin@gmail.com,681cae84479a3cde5c8e3001,Mộ chị Sứ,5,,2025-05-09T02:35:12.955Z,0
+681d7c2e54a3e6c68836d57d,67cfb98a3152742c360ebba6,admin@gmail.com,681cae84479a3cde5c8e2ffc,Suối Ba Hồ,3,da,2025-05-20T12:58:22.881Z,0
+681d7e5d54a3e6c68836d59a,67bd5073fbe8054b224ef0b5,user@example.com,681ab8c6c02cb7a7baaa0816,Tháp Bà Ponagar,4.5,đệp lắm cả nhà ơi,2025-05-11T10:30:53.780Z,0
+6820778f8aaedcd0cd795e79,67daf228bdcb20f28067aa81,1234@gmail.com,681cae84479a3cde5c8e3000,Vườn quốc gia U Minh Thượng,5,đẹp mà mn ơi,2025-05-11T10:10:23.461Z,0
+68207ab8dc72e372ae370781,67bd5073fbe8054b224ef0b5,123@gmail.com,681cae84479a3cde5c8e3000,Vườn quốc gia U Minh Thượng,4,đệp lắm cả nhà ơi,2025-05-12T04:02:42.372Z,0
+68207ac1dc72e372ae370784,67bd5073fbe8054b224ef0b5,123@gmail.com,681cae84479a3cde5c8e3001,Mộ chị Sứ,5,5 sao nha b,2025-06-06T10:02:13.538Z,0
+68207ac7dc72e372ae370787,67bd5073fbe8054b224ef0b5,123@gmail.com,681cae84479a3cde5c8e2fff,Chùa Láng Cát,5,huhehe,2025-05-11T17:24:00.171Z,0
+68207ad3dc72e372ae37078a,67bd5073fbe8054b224ef0b5,123@gmail.com,681cae84479a3cde5c8e2ffc,Suối Ba Hồ,3,mát mát nhỉ,2025-05-12T04:03:17.472Z,0
+68207c936cc179e20cc80c21,67bd5073fbe8054b224ef0b1,user@example.com,681cae84479a3cde5c8e3000,Tháp Bà Ponagar,4.5,đệp lắm cả nhà ơi,2025-05-11T10:31:47.740Z,0
+68207cad6cc179e20cc80c28,67bd5073fbe8054b224ef0b4,user@example.com,681cae84479a3cde5c8e3000,Tháp Bà Ponagar,4.5,đệp lắm cả nhà ơi,2025-05-11T10:32:13.060Z,0
+68207cb26cc179e20cc80c2b,67bd5073fbe8054b224ef1b4,user@example.com,681cae84479a3cde5c8e3000,Tháp Bà Ponagar,4.5,đệp lắm cả nhà ơi,2025-05-11T10:32:18.197Z,0
+68207cb76cc179e20cc80c2e,67bd5073fbe8054b224ef2b4,user@example.com,681cae84479a3cde5c8e3000,Tháp Bà Ponagar,4.5,đệp lắm cả nhà ơi,2025-05-11T10:32:23.634Z,0
+68207cbc6cc179e20cc80c31,67bd5073fbe8054b224ef4b4,user@example.com,681cae84479a3cde5c8e3000,Tháp Bà Ponagar,4.5,đệp lắm cả nhà ơi,2025-05-11T10:32:28.863Z,0
+68207cc26cc179e20cc80c34,67bd5073fbe8054b224ef3b4,user@example.com,681cae84479a3cde5c8e3000,Tháp Bà Ponagar,4.5,đệp lắm cả nhà ơi,2025-05-11T10:32:34.324Z,0
+6820c7a66cc179e20cc80ef2,67bd5073fbe8054b224ef0b5,123@gmail.com,681cae84479a3cde5c8e2ff8,Bãi Dài Cam Ranh,5,bãi cam rank đẹp,2025-05-17T15:42:11.091Z,0
+6820cbc26cc179e20cc80fbb,67bd5073fbe8054b224ef0b5,123@gmail.com,681cae84479a3cde5c8e2ffe,Biển Mũi Nai,4,123 đệp,2025-05-11T16:09:38.085Z,0
+6820d45a6cc179e20cc80fde,67bd5073fbe8054b224ef0b5,123@gmail.com,681cae84479a3cde5c8e2ffb,VinWonders Nha Trang,5,nha trang dep,2025-05-12T04:01:39.390Z,0
+6820d5686cc179e20cc8102b,67bd5073fbe8054b224ef0b5,123@gmail.com,681cae84479a3cde5c8e2ff9,Tháp Bà Ponagar,3,ok nhe,2025-05-12T03:47:41.936Z,0
+6820df722e4d0f5ada6c7467,67bd5073fbe8054b224ef0b5,123@gmail.com,681cae84479a3cde5c8e2ffd,Đảo Phú Quốc ,5,phu quoc dep,2025-05-11T17:33:38.879Z,0
+6820dfc72e4d0f5ada6c7477,67bd5073fbe8054b224ef0b5,123@gmail.com,681cae84479a3cde5c8e3005,Đỉnh Ngọc Linh,5,ok,2025-05-11T17:35:03.199Z,0
+6820e0402e4d0f5ada6c7498,67bd5073fbe8054b224ef0b5,123@gmail.com,681cae84479a3cde5c8e300f,Dinh Bảo Đại,5,"ok phết , xe tăng húc cổng",2025-05-11T17:37:04.286Z,0
+68216e9e621b97070158bdb8,67bd5073fbe8054b224ef0b5,123@gmail.com,681cae84479a3cde5c8e2ffa,Thành cổ Diên Khánh,3,Thành cổ đẹp,2025-05-12T03:44:30.162Z,0
+682ac824fd8f384a1e9f7585,67daf228bdcb20f28067aa81,1234@gmail.com,681cae84479a3cde5c8e2ffb,VinWonders Nha Trang,4,ok đẹp,2025-05-19T05:56:52.880Z,0
+682c7bc8ae12269c36a77bac,67cfb98a3152742c360ebba6,admin@gmail.com,681cae84479a3cde5c8e2ffb,VinWonders Nha Trang,5,ok nha,2025-05-20T12:56:11.183Z,0
+682c7c9aae12269c36a77c1d,67daf228bdcb20f28067aa81,1234@gmail.com,681cae84479a3cde5c8e3001,Mộ chị Sứ,5,ok lắm,2025-05-20T12:59:06.652Z,0
+682c7cf6ae12269c36a77c52,67daf228bdcb20f28067aa81,1234@gmail.com,681cae84479a3cde5c8e2ffc,Suối Ba Hồ,4,ok mà,2025-05-20T13:00:38.992Z,0
+682c7d15ae12269c36a77c84,67daf228bdcb20f28067aa81,1234@gmail.com,681cae84479a3cde5c8e3005,Đỉnh Ngọc Linh,4,MÁT,2025-05-20T13:01:09.252Z,0
+682c7ed5ae12269c36a77c95,67daf228bdcb20f28067aa81,1234@gmail.com,681cae84479a3cde5c8e2fff,Chùa Láng Cát,5,OK CHÙA đpẹde,2025-05-23T09:23:12.116Z,0
+682c8216ae12269c36a77d05,67daf228bdcb20f28067aa81,1234@gmail.com,681cae84479a3cde5c8e3020,Nhà thờ Phú Nhai,5,ok,2025-05-20T13:22:37.833Z,0
+682c8226ae12269c36a77d0d,67daf228bdcb20f28067aa81,1234@gmail.com,681cae84479a3cde5c8e301a,Đền Thượng,5,w,2025-05-20T13:22:46.286Z,0
+682c822dae12269c36a77d13,67daf228bdcb20f28067aa81,1234@gmail.com,681cae84479a3cde5c8e30bb,Vườn Quốc Gia U Minh Hạ,5,uaw,2025-05-20T13:22:53.802Z,0
+682d3a0ee08489cc7c332656,67daf228bdcb20f28067aa81,1234@gmail.com,681cae84479a3cde5c8e300f,Dinh Bảo Đại,4,opk nha\n,2025-05-21T02:27:26.568Z,0
+682db218e08489cc7c3327af,67daf228bdcb20f28067aa81,1234@gmail.com,681cae84479a3cde5c8e311f,Cát Bà,4,cat bà,2025-05-21T10:59:36.750Z,0
+68303e8f31a6a276885b9932,67daf228bdcb20f28067aa81,1234@gmail.com,681cae84479a3cde5c8e301d,Chùa Tôn Thạnh,5,chùa ok nha ,2025-05-23T09:23:27.567Z,0
+68303ea431a6a276885b9948,67daf228bdcb20f28067aa81,1234@gmail.com,681cae84479a3cde5c8e300d,Thiền Viện Trúc Lâm,5,i like chùa\n,2025-05-23T09:23:48.013Z,0
+68303eb531a6a276885b9964,67daf228bdcb20f28067aa81,1234@gmail.com,681cae84479a3cde5c8e3076,Chùa Thiên Mụ,5,chùa is the best,2025-05-23T09:24:05.669Z,0
+6830456431a6a276885ba105,67daf228bdcb20f28067aa81,1234@gmail.com,681cae84479a3cde5c8e2ffd,Đảo Phú Quốc ,5,ok đảo,2025-05-23T09:52:36.629Z,0
+6831430d4ee72126b67f2fd0,67daf228bdcb20f28067aa81,1234@gmail.com,681cae84479a3cde5c8e2ffe,Biển Mũi Nai,5,Mũi nai ok,2025-05-24T03:54:53.347Z,0
+6842b9be41b1841359518535,6833831bebd305ebda80114f,123@gmail.com,681cae84479a3cde5c8e3001,Mộ chị Sứ,5,5 sao,2025-06-06T09:49:50.392Z,0
+684a97d7533d710745d2464c,67bd5073fbe8054b224ef0b5,123@gmail.com,681cae84479a3cde5c8e3082,Bảo tàng lịch sử Việt Nam,4,cũng được,2025-06-12T09:03:19.813Z,0

@@ -1,109 +1,199 @@
 const neo4j = require("neo4j-driver");
 
+// Environment variables thay vì hardcode
+// const NEO4J_URI =
+//   process.env.NEO4J_URI || "neo4j+s://cbda0561.databases.neo4j.io";
+// const NEO4J_USER = process.env.NEO4J_USER || "neo4j";
+// const NEO4J_PASSWORD =
+//   process.env.NEO4J_PASSWORD || "Fi5DRyCzD0-iutQsD4PJf8xX7SUOT8cFe5uf_xXcuH4";
+//key
+const NEO4J_URI = "neo4j+s://cbda0561.databases.neo4j.io";
+const NEO4J_USER = "neo4j";
+const NEO4J_PASSWORD = "Fi5DRyCzD0-iutQsD4PJf8xX7SUOT8cFe5uf_xXcuH4";
 // Kết nối đến database Neo4j
-const driver = neo4j.driver(
-  "neo4j://localhost:7687", // Thay bằng URL của bạn
-  neo4j.auth.basic("neo4j", "viesocial") // Thay bằng username và password của bạn
-);
+// const driver = neo4j.driver(
+//   NEO4J_URI, // Thay bằng URL của bạn
+//   neo4j.auth.basic(NEO4J_USER, NEO4J_PASSWORD) // Thay bằng username và password của bạn
+// );
 
-const session = driver.session();
+// Singleton pattern cho driver
+let driver;
 
-// Hàm tạo một Node (Ví dụ: User)
-async function createNode(label, properties) {
-  const query = `CREATE (n:${label} $properties) RETURN n`;
-  const params = { properties };
-
-  try {
-    const result = await session.run(query, params);
-    return result.records[0].get("n").properties;
-  } catch (error) {
-    console.error("Lỗi khi tạo node:", error);
-    throw error;
+function getDriver() {
+  if (!driver) {
+    driver = neo4j.driver(
+      NEO4J_URI,
+      neo4j.auth.basic(NEO4J_USER, NEO4J_PASSWORD),
+      {
+        maxConnectionLifetime: 3 * 60 * 60 * 1000, // 3 hours
+        maxConnectionPoolSize: 50,
+        connectionAcquisitionTimeout: 2 * 60 * 1000, // 2 minutes
+        disableLosslessIntegers: true,
+      }
+    );
   }
+  return driver;
 }
 
-// Hàm tạo một Relationship giữa hai Node
-async function createRelationship(
-  typeFrom,
-  fromNode,
-  typeTo,
-  toNode,
-  relType,
-  properties = {}
-) {
-  const query = `
-    MATCH (a:${typeFrom} {id: $fromId}), (b:${typeTo} {id: $toId})
-    CREATE (a)-[r:${relType} $properties]->(b)
-    RETURN r
-  `;
-  const params = {
-    fromId: fromNode,
-    toId: toNode,
-    properties,
-  };
-
+// Helper function để quản lý session
+async function executeQuery(query, params = {}) {
+  const session = getDriver().session();
   try {
     const result = await session.run(query, params);
-    return result.records[0].get("r").properties;
+    return result;
   } catch (error) {
-    console.error("Lỗi khi tạo relationship:", error);
-    throw error;
-  }
-}
-async function deleteRelationship(typeFrom, fromNode, typeTo, toNode, relType) {
-  const query = `
-      MATCH (a:${typeFrom} {id: $fromId})-[r:${relType}]-(b:${typeTo} {id: $toId})
-      DELETE r
-      RETURN COUNT(r) AS deletedCount
-    `;
-
-  const params = {
-    fromId: fromNode,
-    toId: toNode,
-  };
-
-  try {
-    const result = await session.run(query, params);
-    const deletedCount = result.records[0].get("deletedCount");
-
-    if (deletedCount === 0) {
-      console.log("Không tìm thấy mối quan hệ để xóa.");
-      return { message: "Không tìm thấy mối quan hệ để xóa." };
-    }
-
-    return { message: "Đã xóa thành công", deletedCount };
-  } catch (error) {
-    console.error("Lỗi khi xóa relationship:", error);
-    throw error;
-  }
-}
-
-async function getSuggestFriends(userId) {
-  const query = `
-      MATCH (u:User {id: $userId})-[:FRIENDS_WITH]-(friend)-[:FRIENDS_WITH]-(suggested)
-      WHERE NOT (u)-[:FRIENDS_WITH]-(suggested) AND u <> suggested
-      RETURN DISTINCT suggested.id AS suggestedId, suggested.username AS suggestedName, suggested.avatar AS avatar
-      LIMIT 10
-    `;
-
-  try {
-    const result = await session.run(query, { userId });
-
-    return result.records.map((record) => ({
-      id: record.get("suggestedId"),
-      username: record.get("suggestedName"),
-      avatar: record.get("avatar"),
-    }));
-  } catch (error) {
-    console.error("Lỗi khi truy vấn gợi ý bạn bè:", error);
+    console.error("Database query error:", error);
     throw error;
   } finally {
     await session.close();
   }
 }
+//téttt
+
+// ========== ANALYTICS ==========
+
+// Thống kê user
+async function getUserStats(userId) {
+  const query = `
+    MATCH (u:User {id: $userId})
+    OPTIONAL MATCH (u)-[:FRIENDS_WITH]-(friend)
+    OPTIONAL MATCH (u)-[:FOLLOWS]->(following)
+    OPTIONAL MATCH (u)<-[:FOLLOWS]-(follower)
+    OPTIONAL MATCH (u)-[:POSTED]->(post)
+    OPTIONAL MATCH (post)<-[:LIKED]-(liker)
+    OPTIONAL MATCH (post)<-[:COMMENT_ON]-(comment)
+    
+    RETURN u.username as username,
+           COUNT(DISTINCT friend) as friendsCount,
+           COUNT(DISTINCT following) as followingCount,
+           COUNT(DISTINCT follower) as followersCount,
+           COUNT(DISTINCT post) as postsCount,
+           COUNT(DISTINCT liker) as totalLikes,
+           COUNT(DISTINCT comment) as totalComments
+  `;
+
+  const result = await executeQuery(query, { userId });
+  return result.records[0]
+    ? {
+        username: result.records[0].get("username"),
+        friendsCount: result.records[0].get("friendsCount"),
+        followingCount: result.records[0].get("followingCount"),
+        followersCount: result.records[0].get("followersCount"),
+        postsCount: result.records[0].get("postsCount"),
+        totalLikes: result.records[0].get("totalLikes"),
+        totalComments: result.records[0].get("totalComments"),
+      }
+    : null;
+}
+
+// ========== SEARCH ==========
+
+// Tìm kiếm user
+async function searchUsers(searchTerm, limit = 10) {
+  const query = `
+    MATCH (u:User)
+    WHERE u.username CONTAINS $searchTerm 
+       OR u.fullName CONTAINS $searchTerm
+       OR u.email CONTAINS $searchTerm
+    RETURN u.id as id,
+           u.username as username,
+           u.fullName as fullName,
+           u.avatar as avatar,
+           u.followerCount as followerCount
+    ORDER BY u.followerCount DESC
+    LIMIT $limit
+  `;
+
+  const result = await executeQuery(query, { searchTerm, limit });
+  return result.records.map((record) => ({
+    id: record.get("id"),
+    username: record.get("username"),
+    fullName: record.get("fullName"),
+    avatar: record.get("avatar"),
+    followerCount: record.get("followerCount"),
+  }));
+}
+
+// Tìm kiếm bài viết
+async function searchPosts(searchTerm, limit = 20) {
+  const query = `
+    MATCH (u:User)-[:POSTED]->(p:Post)
+    WHERE p.content CONTAINS $searchTerm
+      AND p.privacy = 'public'
+    RETURN p.id as postId,
+           p.content as content,
+           p.createdAt as createdAt,
+           p.likeCount as likeCount,
+           p.commentCount as commentCount,
+           u.id as authorId,
+           u.username as authorUsername,
+           u.fullName as authorFullName,
+           u.avatar as authorAvatar
+    ORDER BY p.createdAt DESC
+    LIMIT $limit
+  `;
+
+  const result = await executeQuery(query, { searchTerm, limit });
+  return result.records.map((record) => ({
+    postId: record.get("postId"),
+    content: record.get("content"),
+    createdAt: record.get("createdAt"),
+    likeCount: record.get("likeCount"),
+    commentCount: record.get("commentCount"),
+    author: {
+      id: record.get("authorId"),
+      username: record.get("authorUsername"),
+      fullName: record.get("authorFullName"),
+      avatar: record.get("authorAvatar"),
+    },
+  }));
+}
+
+// ========== CLEANUP ==========
+
+// Đóng kết nối
+async function closeConnection() {
+  if (driver) {
+    await driver.close();
+    driver = null;
+  }
+}
+
+// Graceful shutdown
+process.on("SIGINT", closeConnection);
+process.on("SIGTERM", closeConnection);
 module.exports = {
-  createNode,
-  createRelationship,
-  deleteRelationship,
-  getSuggestFriends,
+  // User management
+  // createUser,
+  // getUserById,
+  // updateUser,
+  // getUserStats,
+
+  // // Friendship
+  // sendFriendRequest,
+  // acceptFriendRequest,
+  // rejectFriendRequest,
+  // unfriend,
+
+  // // Follow system
+  // followUser,
+  // unfollowUser,
+
+  // // Posts
+  // createPost,
+  // likePost,
+  // unlikePost,
+  // createComment,
+
+  // // Recommendations
+  // getFriendSuggestions,
+  // getNewsFeed,
+
+  // // Search
+  searchUsers,
+  searchPosts,
+
+  // Utilities
+  closeConnection,
+  executeQuery, // Export for custom queries
 };

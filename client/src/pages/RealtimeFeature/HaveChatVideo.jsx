@@ -75,7 +75,7 @@ export default function HaveChatVideo() {
               sx={{ width: 80, height: 80, mx: "auto", mb: 2 }}
             />
             <Typography variant="h6" sx={{ mb: 1.5 }}>
-              {opponentName}
+              {opponentName?.name}
             </Typography>
             <Typography variant="body2" color="gray" sx={{ mb: 2 }}>
               Đang gọi...

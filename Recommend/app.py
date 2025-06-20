@@ -11,9 +11,10 @@ app = Flask(__name__)
 CORS(app)
 
 # Kết nối MongoDB
-client = MongoClient("mongodb://localhost:27017/")
-db = client["my-social-network"]
- 
+# client = MongoClient("mongodb://localhost:27017/")
+# db = client["my-social-network"]
+client = MongoClient("mongodb+srv://dangngochai280306:123abc@cluster0.vq6y6wc.mongodb.net/viesocial?retryWrites=true&w=majority&appName=Cluster0")
+db = client["viesocial"] 
 # Collections
 locations_collection = db["locations"]
 ratings_collection = db["ratinglocations"]

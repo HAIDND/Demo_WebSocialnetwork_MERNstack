@@ -1,114 +1,593 @@
-// controllers/notificationController.js
-const Notification = require("../models/Notification");
-const Friendship = require("../models/Friendship");
-const User = require("../models/User");
-// API Tạo thông báo
+const UserNotification = require("../models/Notification");
+
+// exports.createNotification = async ({
+//   userId,
+//   type,
+//   sender,
+//   messageNote,
+//   linkClick,
+//   postId,
+//   commentId,
+// }) => {
+//   console.log("careta notifi");
+//   if (!userId || !type || !sender || !messageNote) {
+//     throw new Error("Thiếu thông tin bắt buộc khi tạo notification");
+//   }
+
+//   const newNotification = {
+//     type,
+//     sender: {
+//       id: sender.id,
+//       avatar: sender.avatar || "",
+//       username: sender.username,
+//     },
+//     messageNote,
+//     linkClick: linkClick || "",
+//     postId: postId || null,
+//     commentId: commentId || null,
+//     isRead: false,
+//     createdAt: new Date(),
+//   };
+
+//   let userNotification = await UserNotification.findOne({ userId });
+
+//   if (!userNotification) {
+//     userNotification = new UserNotification({
+//       userId,
+//       notifications: [newNotification],
+//       unreadCount: 1,
+//     });
+//   } else {
+//     userNotification.notifications.unshift(newNotification);
+//     userNotification.unreadCount += 1;
+
+//     if (userNotification.notifications.length > 100) {
+//       userNotification.notifications = userNotification.notifications.slice(
+//         0,
+//         100
+//       );
+//     }
+//   }
+
+//   await userNotification.save();
+
+//   return newNotification;
+// };
+
 exports.createNotification = async ({
-  senderId,
-  senderName,
-  senderAvatar,
-  receiverId,
-  receiverName,
+  userId,
   type,
-  postId = null,
-  messageId = null,
+  sender,
+  messageNote,
+  linkClick,
+  postId,
+  commentId,
 }) => {
-  try {
-    const notification = new Notification({
-      senderId,
-      senderName,
-      senderAvatar,
-      receiverId,
-      receiverName,
-      type,
-      postId,
-      messageId,
-      isRead: false, // mặc định chưa đọc
+  if (!userId || !type || !sender || !messageNote) {
+    throw new Error("Thiếu thông tin bắt buộc khi tạo notification");
+  }
+
+  const newNotification = {
+    type,
+    sender: {
+      id: sender.id,
+      avatar: sender.avatar || "",
+      username: sender.username,
+    },
+    messageNote,
+    linkClick: linkClick || "",
+    postId: postId || null,
+    commentId: commentId || null,
+    isRead: false,
+    createdAt: new Date(),
+  };
+
+  let userNotification = await UserNotification.findOne({ userId });
+
+  if (!userNotification) {
+    userNotification = new UserNotification({
+      userId,
+      notifications: [newNotification],
+      unreadCount: 1,
     });
+  } else {
+    userNotification.notifications.unshift(newNotification);
+    userNotification.unreadCount += 1;
 
-    await notification.save();
-    return notification;
-  } catch (error) {
-    console.error("Error creating notification:", error);
-    throw error;
+    if (userNotification.notifications.length > 100) {
+      userNotification.notifications = userNotification.notifications.slice(
+        0,
+        100
+      );
+    }
   }
+
+  await userNotification.save();
+
+  return newNotification;
 };
 
-// controllers/notificationController.js
-
-// API Lấy thông báo của người dùng
-exports.getNotifications = async (req, res) => {
+exports.getUserNotifications = async (req, res) => {
   try {
-    const userId = req.userId; // Lấy ID người dùng từ middleware xác thực
+    const { userId } = req.params;
+    const { page = 1, limit = 20, type } = req.query;
 
-    const notifications = await Notification.find({ userId })
-      .sort({ createdAt: -1 }) // Mới nhất trước
-      .populate("senderId", "username avatar") // Lấy thêm thông tin người gửi
-      .populate("postId", "content image") // Lấy nội dung bài viết nếu có
-      .populate("messageId"); // Có thể bỏ nếu không dùng
+    const skip = (page - 1) * limit;
 
-    return notifications;
-  } catch (error) {
-    console.error("Error fetching notifications:", error);
-    throw error;
-  }
-};
-// controllers/notificationController.js
+    let userNotification = await UserNotification.findOne({ userId });
 
-// API Đánh dấu thông báo là đã đọc
-exports.markAsRead = async (req, res) => {
-  try {
-    const { notificationId } = req.body;
-    const notification = await Notification.findByIdAndUpdate(
-      notificationId,
-      { isRead: true },
-      { new: true }
-    );
-
-    return notification;
-  } catch (error) {
-    console.error("Error marking notification as read:", error);
-    throw error;
-  }
-};
-
-// Gửi thông báo cho bạn bè
-exports.sendNotificationsToFriends = async (userId, newPost) => {
-  try {
-    // Tìm danh sách bạn bè từ bảng Friendship (mối quan hệ đã được chấp nhận)
-    const friendships = await Friendship.find({
-      $or: [
-        { requester: userId, status: "accepted" },
-        { recipient: userId, status: "accepted" },
-      ],
-    });
-
-    // Trích xuất danh sách bạn bè (loại bỏ userId)
-    const friends = friendships.map((friendship) =>
-      friendship.requester.toString() === userId
-        ? friendship.recipient
-        : friendship.requester
-    );
-
-    if (!friends || friends.length === 0) {
-      return; // Không có bạn bè thì không gửi thông báo
+    if (!userNotification) {
+      return res.status(200).json({
+        success: true,
+        data: {
+          notifications: [],
+          unreadCount: 0,
+          totalCount: 0,
+          currentPage: parseInt(page),
+          totalPages: 0,
+        },
+      });
     }
 
-    // Tạo thông báo cho người tạo bài viết
-    const user = await User.findById(userId).select("username"); // Lấy trường 'name' của người dùng
+    let notifications = userNotification.notifications;
 
-    // Tạo thông báo gửi đến từng bạn bè
-    const notifications = friends.map((friendId) => ({
-      userId: friendId, // Người nhận thông báo
-      type: "new_post",
-      message: `Người dùng ${user.username} đã tạo một bài viết mới.`,
-      postId: newPost._id, // Liên kết đến bài viết
-      createdAt: new Date(),
-    }));
+    // Filter theo type nếu có
+    if (type) {
+      notifications = notifications.filter((notif) => notif.type === type);
+    }
 
-    // Lưu thông báo vào cơ sở dữ liệu
-    await Notification.insertMany(notifications);
+    // Pagination
+    const totalCount = notifications.length;
+    const totalPages = Math.ceil(totalCount / limit);
+    const paginatedNotifications = notifications.slice(
+      skip,
+      skip + parseInt(limit)
+    );
+
+    res.status(200).json({
+      success: true,
+      data: {
+        notifications: paginatedNotifications,
+        unreadCount: userNotification.unreadCount,
+        totalCount,
+        currentPage: parseInt(page),
+        totalPages,
+      },
+    });
   } catch (error) {
-    console.error("Error sending notifications:", error);
+    res.status(500).json({
+      success: false,
+      message: "Lỗi server",
+      error: error.message,
+    });
   }
 };
+// Đánh dấu notification đã đọc
+
+exports.markAsRead = async (req, res) => {
+  try {
+    const { userId, notificationId } = req.params;
+
+    const userNotification = await UserNotification.findOne({ userId });
+
+    if (!userNotification) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy notification",
+      });
+    }
+
+    const notification = userNotification.notifications.id(notificationId);
+
+    if (!notification) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy notification",
+      });
+    }
+
+    if (!notification.isRead) {
+      notification.isRead = true;
+      userNotification.unreadCount = Math.max(
+        0,
+        userNotification.unreadCount - 1
+      );
+      await userNotification.save();
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Đánh dấu đã đọc thành công",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Lỗi server",
+      error: error.message,
+    });
+  }
+};
+// Đánh dấu tất cả notification đã đọc
+exports.markAllAsRead = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const result = await UserNotification.updateOne(
+      { userId },
+      {
+        $set: {
+          "notifications.$[].isRead": true,
+          unreadCount: 0,
+        },
+      }
+    );
+
+    if (result.matchedCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy user",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Đánh dấu tất cả đã đọc thành công",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Lỗi server",
+      error: error.message,
+    });
+  }
+};
+
+// Xóa notification
+exports.deleteNotification = async (req, res) => {
+  try {
+    const { userId, notificationId } = req.params;
+
+    const userNotification = await UserNotification.findOne({ userId });
+
+    if (!userNotification) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy notification",
+      });
+    }
+
+    const notification = userNotification.notifications.id(notificationId);
+
+    if (!notification) {
+      return res.status(404).json({
+        success: false,
+        message: "Không tìm thấy notification",
+      });
+    }
+
+    // Giảm unreadCount nếu notification chưa đọc
+    if (!notification.isRead) {
+      userNotification.unreadCount = Math.max(
+        0,
+        userNotification.unreadCount - 1
+      );
+    }
+
+    userNotification.notifications.pull(notificationId);
+    await userNotification.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Xóa notification thành công",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Lỗi server",
+      error: error.message,
+    });
+  }
+};
+
+// Lấy số lượng notification chưa đọc
+exports.getUnreadCount = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const userNotification = await UserNotification.findOne({ userId });
+
+    const unreadCount = userNotification ? userNotification.unreadCount : 0;
+
+    res.status(200).json({
+      success: true,
+      data: { unreadCount },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Lỗi server",
+      error: error.message,
+    });
+  }
+};
+class NotificationController {
+  // Tạo notification mới
+  static async createNotification(req, res) {
+    try {
+      const {
+        userId,
+        type,
+        sender,
+        messageNote,
+        linkClick,
+        postId,
+        commentId,
+      } = req.body;
+
+      // Validate input
+      if (!userId || !type || !sender || !messageNote) {
+        return res.status(400).json({
+          success: false,
+          message: "Thiếu thông tin bắt buộc",
+        });
+      }
+
+      const newNotification = {
+        type,
+        sender: {
+          id: sender.id,
+          avatar: sender.avatar || "",
+          username: sender.username,
+        },
+        messageNote,
+        linkClick: linkClick || "",
+        postId: postId || null,
+        commentId: commentId || null,
+        isRead: false,
+        createdAt: new Date(),
+      };
+
+      // Tìm hoặc tạo document notification cho user
+      let userNotification = await UserNotification.findOne({ userId });
+
+      if (!userNotification) {
+        userNotification = new UserNotification({
+          userId,
+          notifications: [newNotification],
+          unreadCount: 1,
+        });
+      } else {
+        userNotification.notifications.unshift(newNotification);
+        userNotification.unreadCount += 1;
+
+        // Giới hạn số lượng notification (giữ 100 notification mới nhất)
+        if (userNotification.notifications.length > 100) {
+          userNotification.notifications = userNotification.notifications.slice(
+            0,
+            100
+          );
+        }
+      }
+
+      await userNotification.save();
+
+      res.status(201).json({
+        success: true,
+        message: "Tạo notification thành công",
+        data: newNotification,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Lỗi server",
+        error: error.message,
+      });
+    }
+  }
+
+  // Lấy danh sách notification của user
+  static async getUserNotifications(req, res) {
+    try {
+      const { userId } = req.params;
+      const { page = 1, limit = 20, type } = req.query;
+
+      const skip = (page - 1) * limit;
+
+      let userNotification = await UserNotification.findOne({ userId });
+
+      if (!userNotification) {
+        return res.status(200).json({
+          success: true,
+          data: {
+            notifications: [],
+            unreadCount: 0,
+            totalCount: 0,
+            currentPage: parseInt(page),
+            totalPages: 0,
+          },
+        });
+      }
+
+      let notifications = userNotification.notifications;
+
+      // Filter theo type nếu có
+      if (type) {
+        notifications = notifications.filter((notif) => notif.type === type);
+      }
+
+      // Pagination
+      const totalCount = notifications.length;
+      const totalPages = Math.ceil(totalCount / limit);
+      const paginatedNotifications = notifications.slice(
+        skip,
+        skip + parseInt(limit)
+      );
+
+      res.status(200).json({
+        success: true,
+        data: {
+          notifications: paginatedNotifications,
+          unreadCount: userNotification.unreadCount,
+          totalCount,
+          currentPage: parseInt(page),
+          totalPages,
+        },
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Lỗi server",
+        error: error.message,
+      });
+    }
+  }
+
+  // Đánh dấu notification đã đọc
+  static async markAsRead(req, res) {
+    try {
+      const { userId, notificationId } = req.params;
+
+      const userNotification = await UserNotification.findOne({ userId });
+
+      if (!userNotification) {
+        return res.status(404).json({
+          success: false,
+          message: "Không tìm thấy notification",
+        });
+      }
+
+      const notification = userNotification.notifications.id(notificationId);
+
+      if (!notification) {
+        return res.status(404).json({
+          success: false,
+          message: "Không tìm thấy notification",
+        });
+      }
+
+      if (!notification.isRead) {
+        notification.isRead = true;
+        userNotification.unreadCount = Math.max(
+          0,
+          userNotification.unreadCount - 1
+        );
+        await userNotification.save();
+      }
+
+      res.status(200).json({
+        success: true,
+        message: "Đánh dấu đã đọc thành công",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Lỗi server",
+        error: error.message,
+      });
+    }
+  }
+
+  // Đánh dấu tất cả notification đã đọc
+  static async markAllAsRead(req, res) {
+    try {
+      const { userId } = req.params;
+
+      const result = await UserNotification.updateOne(
+        { userId },
+        {
+          $set: {
+            "notifications.$[].isRead": true,
+            unreadCount: 0,
+          },
+        }
+      );
+
+      if (result.matchedCount === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "Không tìm thấy user",
+        });
+      }
+
+      res.status(200).json({
+        success: true,
+        message: "Đánh dấu tất cả đã đọc thành công",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Lỗi server",
+        error: error.message,
+      });
+    }
+  }
+
+  // Xóa notification
+  static async deleteNotification(req, res) {
+    try {
+      const { userId, notificationId } = req.params;
+
+      const userNotification = await UserNotification.findOne({ userId });
+
+      if (!userNotification) {
+        return res.status(404).json({
+          success: false,
+          message: "Không tìm thấy notification",
+        });
+      }
+
+      const notification = userNotification.notifications.id(notificationId);
+
+      if (!notification) {
+        return res.status(404).json({
+          success: false,
+          message: "Không tìm thấy notification",
+        });
+      }
+
+      // Giảm unreadCount nếu notification chưa đọc
+      if (!notification.isRead) {
+        userNotification.unreadCount = Math.max(
+          0,
+          userNotification.unreadCount - 1
+        );
+      }
+
+      userNotification.notifications.pull(notificationId);
+      await userNotification.save();
+
+      res.status(200).json({
+        success: true,
+        message: "Xóa notification thành công",
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Lỗi server",
+        error: error.message,
+      });
+    }
+  }
+
+  // Lấy số lượng notification chưa đọc
+  static async getUnreadCount(req, res) {
+    try {
+      const { userId } = req.params;
+
+      const userNotification = await UserNotification.findOne({ userId });
+
+      const unreadCount = userNotification ? userNotification.unreadCount : 0;
+
+      res.status(200).json({
+        success: true,
+        data: { unreadCount },
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: "Lỗi server",
+        error: error.message,
+      });
+    }
+  }
+}

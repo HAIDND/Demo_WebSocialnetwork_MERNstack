@@ -1,3 +1,5 @@
+const User = require("../models/User");
+// const Message = require("../models/Message"); // Import Message model
 const socketIO = require("socket.io");
 const socketLiveStream = require("./socketLiveStream");
 //map user online
@@ -287,6 +289,7 @@ function callVideoPersonal(io, socket) {
   socket.on(
     "initiateCall",
     ({ targetId, signalData, senderId, senderName }) => {
+      console.log("init cal;l", targetId, senderId, senderName);
       io.to(targetId).emit("incomingCall", {
         signal: signalData,
         from: senderId,
@@ -330,8 +333,82 @@ const emitEventToUser = (userEmail, eventName, data) => {
     console.log(`User ${userEmail} offline or socket not initialized.`);
   }
 };
+// ===================== NOTIFICATION SYSTEM =====================
+async function createAndEmitNotification(notificationData) {
+  try {
+    // You'll need to import your User model here
+    // const User = require("../models/User");
+
+    // Get user email from userId
+    console.log(notificationData);
+    const user = notificationData.email;
+    //await User.findById(notificationData.email).select("email");
+
+    if (!user) {
+      console.log(`User not found: ${notificationData.email}`);
+      return;
+    }
+
+    // Create notification in database
+    // await createNotification(notificationData);
+
+    // Emit real-time notification
+    // emitNotificationToUser(user.email, notificationData);
+
+    // For now, using userId directly (you can modify based on your User model)
+    emitNotificationToUser(notificationData.email, notificationData);
+  } catch (error) {
+    console.error("Error creating notification:", error);
+  }
+}
+
+/**
+ * Emit notification to specific user by email
+ */
+function emitNotificationToUser(userEmail, notificationData) {
+  const socketId = onlineUsers.get(userEmail);
+  console.log("soketid", socketId);
+
+  if (socketId && ioInstance) {
+    ioInstance.to(socketId).emit("notification", {
+      ...notificationData,
+      timestamp: new Date().toISOString(),
+    });
+    console.log(`Notification sent to user ${userEmail}`);
+  } else {
+    console.log(
+      `User ${userEmail} is offline - notification saved to database`
+    );
+  }
+}
+
+/**
+ * Emit notification to user by ID (with email lookup)
+ */
+async function emitNotificationToUserId(userId, notificationData) {
+  try {
+    // You'll need to import your User model here
+    // const User = require("../models/User");
+    // const user = await User.findById(userId).select('email');
+
+    // if (user) {
+    //   emitNotificationToUser(user.email, notificationData);
+    // } else {
+    //   console.log(`User not found: ${userId}`);
+    // }
+
+    // For now, using userId directly
+    emitNotificationToUser(userId, notificationData);
+  } catch (error) {
+    console.error("Error emitting notification:", error);
+  }
+}
+
 // module.exports = setupSocket;
 module.exports = {
+  ioInstance,
+  emitNotificationToUserId,
+  createAndEmitNotification,
   setupSocket,
   emitEventToUser, // ✅ export thêm
   onlineUsers, // optional: export nếu nơi khác cần dùng

@@ -30,6 +30,7 @@ import NotificationPanel from "./Notifi";
 import ChatList from "~/pages/Chatting/ChatList";
 import ThemeSettings from "./ThemeSettings";
 import { SocketContext } from "~/context/SocketContext";
+import NotificationDemo from "~/components/Elements/Notifi/Notify";
 
 // import SidebarMobile from "./SideBarMobile";
 
@@ -55,7 +56,7 @@ const Header = () => {
   const [chatListOpen, setChatListOpen] = useState(false);
   const [anchorNotifi, setAnchorNotifi] = useState(null);
   const [settingsAnchorNotifi, setSettingsAnchorNotifi] = useState(null);
-
+  const [isOpenNotification, setIsOpenNotification] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const navigate = useNavigate();
@@ -140,10 +141,11 @@ const Header = () => {
               {messageState.unreadMessages.length}
             </Typography>
           </IconButton>
-
-          <IconButton onClick={handleNotifiOpen(setSettingsAnchorNotifi)}>
+          {/* handleNotifiOpen(setSettingsAnchorNotifi) */}
+          <IconButton onClick={() => setIsOpenNotification((prev) => !prev)}>
             <NotificationsIcon fontSize="large" />
           </IconButton>
+          {isOpenNotification && <NotificationDemo open={isOpenNotification} />}
           {Boolean(settingsAnchorNotifi) && <NotificationPanel />}
 
           {!isMobile && (

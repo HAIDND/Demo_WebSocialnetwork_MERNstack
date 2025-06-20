@@ -8,25 +8,28 @@ import {
   Typography,
   Rating,
   useTheme,
+  useMediaQuery,
 } from "@mui/material";
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { getRecommendCollaborate } from "~/utils/RecommendAPI";
+
 function RecommendExtension() {
   const [recommendations, setRecommendations] = useState([]);
-  const theme = useTheme(); // Truy cập theme
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
   useEffect(() => {
     const fetchRecommendations = async () => {
       try {
         const res = await getRecommendCollaborate();
         if (res) {
-          console.log("effect mounted data loca", res);
           const data = res.recommendations.filter((i) => i.locationInfo);
           setRecommendations(data);
         } else {
-          console.log("No list friend");
+          console.log("No recommendations found");
         }
       } catch (error) {
         console.error("Failed to fetch recommendations:", error);
@@ -35,29 +38,32 @@ function RecommendExtension() {
 
     fetchRecommendations();
   }, []);
+
   if (recommendations.length < 1) return null;
+
   return (
     <Box
       sx={{
-        display: "flex",
-        flexDirection: "column",
-        gap: theme.spacing(2),
-        width: 360,
-        padding: theme.spacing(3),
+        width: isMobile ? "100%" : 360,
+        px: 2,
+        py: 3,
+        mx: "auto",
         backgroundColor: theme.palette.background.paper,
-        borderRadius: theme.shape.borderRadius,
-        boxShadow: theme.shadows[3],
-        maxWidth: 300,
-        ml: theme.spacing(7),
-        mb: 3,
-        mt: 3,
+        borderRadius: 4,
+        boxShadow: 4,
+        mt: 4,
+        mb: 4,
       }}
     >
-      <Typography variant="h5" sx={{ textAlign: "center" }} color="primary">
-        Travel recommendations
+      <Typography
+        variant="h5"
+        sx={{ textAlign: "center", fontWeight: 600 }}
+        color="primary"
+      >
+        Travel Recommendations
       </Typography>
 
-      <List>
+      <List disablePadding>
         {recommendations.map((item, index) => (
           <RecommendationItem key={index} item={item} />
         ))}
@@ -65,50 +71,73 @@ function RecommendExtension() {
     </Box>
   );
 }
-export default RecommendExtension;
+
 function RecommendationItem({ item }) {
   const navigate = useNavigate();
-  const handleItemClick = (item) => {
+  const theme = useTheme();
+
+  const handleItemClick = () => {
     navigate("/recommendpage", { state: { item } });
   };
+
+  const location = item?.locationInfo;
+
   return (
     <ListItem
       sx={{
         display: "flex",
         alignItems: "flex-start",
         cursor: "pointer",
+        borderBottom: `1px solid ${theme.palette.divider}`,
+        px: 1,
+        py: 1.5,
+        borderRadius: 1,
+        "&:hover": {
+          backgroundColor: theme.palette.action.hover,
+        },
       }}
-      onClick={() => handleItemClick(item)}
+      onClick={handleItemClick}
     >
       <ListItemAvatar>
         <Avatar
-          alt={item?.locationInfo?.imageUrl}
-          src={item?.locationInfo?.imageUrl}
-          sx={{ width: 60, height: 60, mr: 2 }}
+          alt={location?.name}
+          src={location?.imageUrl}
+          sx={{
+            width: 60,
+            height: 60,
+            mr: 2,
+            borderRadius: 2,
+          }}
+          variant="rounded"
         />
       </ListItemAvatar>
+
       <ListItemText
         primary={
-          <Typography fontWeight="bold">{item?.locationInfo?.name}</Typography>
+          <Typography fontWeight="bold" fontSize="1rem">
+            {location?.name}
+          </Typography>
         }
         secondary={
           <>
             <Rating
-              value={parseFloat(item?.locationInfo?.rating)}
+              value={parseFloat(location?.rating || 0)}
               precision={0.1}
               readOnly
               size="small"
+              sx={{ mt: 0.5 }}
             />
-            <Typography
-              variant="body2"
-              sx={{ display: "block", mt: 0.5 }}
-              color="text.secondary"
-            >
-              {item?.locationInfo?.description.slice(0, 90)}...
+            <Typography variant="body2" sx={{ mt: 0.5 }} color="text.secondary">
+              {location?.description
+                ? location.description.slice(0, 90) + "..."
+                : "No description available."}
             </Typography>
           </>
         }
+        sx={{ ml: 1 }}
       />
     </ListItem>
   );
 }
+
+export default RecommendExtension;

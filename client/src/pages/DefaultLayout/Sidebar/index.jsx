@@ -25,6 +25,7 @@ import { CurrentUser } from "~/context/GlobalContext";
 const Sidebar = () => {
   const { currentUserInfo, currentUser, isMobile } = useContext(CurrentUser);
   const theme = useTheme();
+
   const listMenu = [
     { title: "Newsfeed", path: "/newsfeed", icon: <NewspaperIcon /> },
     {
@@ -34,7 +35,7 @@ const Sidebar = () => {
     },
     { title: "Friends", path: "/friends", icon: <PeopleIcon /> },
     { title: "Groups", path: "/groups", icon: <GroupIcon /> },
-    { title: "Settings", path: "/settings", icon: <SettingsIcon /> },
+
     // { title: "ChatRealtime", path: "/chat", icon: <Chat /> },
     // { title: "Live stream", path: "/livestream", icon: <Camera /> },
     {
@@ -42,18 +43,23 @@ const Sidebar = () => {
       path: "/recommendpage",
       icon: <Recommend />,
     },
+    { title: "Settings", path: "/settings", icon: <SettingsIcon /> },
   ];
+
   return (
     <Box
       sx={{
         mt: 10,
-        width: 240,
+        width: 290,
         position: "fixed",
         backgroundColor: theme.palette.background.paper,
-        // boxShadow: theme.shadows[3],
         color: theme.palette.text.primary,
         height: "100%",
         display: isMobile ? "none" : "block",
+        boxShadow: "2px 0 8px rgba(0,0,0,0.1)",
+        borderTopRightRadius: 12,
+        borderBottomRightRadius: 12,
+        transition: "all 0.3s ease-in-out",
       }}
     >
       <List>
@@ -63,18 +69,41 @@ const Sidebar = () => {
             to={path}
             key={title}
             sx={{
-              padding: 2,
-              "&:hover": { backgroundColor: theme.palette.text.secondary },
+              padding: "12px 20px",
+              borderRadius: 2,
+              mx: 1,
+              my: 1,
+              transition: "background-color 0.3s, transform 0.2s",
+              "&:hover": {
+                backgroundColor: theme.palette.action.hover,
+                transform: "translateX(4px)",
+              },
             }}
           >
             <ListItemIcon
               sx={{
-                "&:hover": "red",
+                color: theme.palette.text.secondary,
+                minWidth: 36,
+                transition: "color 0.3s",
+                "&:hover": {
+                  color: theme.palette.primary.main,
+                },
               }}
             >
               {icon}
             </ListItemIcon>
-            <ListItemText primary={title} sx={{ fontWeight: "bold" }} />
+            <ListItemText
+              primary={title}
+              primaryTypographyProps={{
+                fontWeight: 500,
+                sx: {
+                  transition: "color 0.3s",
+                  "&:hover": {
+                    color: theme.palette.primary.main,
+                  },
+                },
+              }}
+            />
           </ListItem>
         ))}
       </List>
