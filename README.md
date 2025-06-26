@@ -1,18 +1,24 @@
-# Hướng Dẫn Chạy Website Du Lịch
+# 🌐 Hướng Dẫn Chạy Website Du Lịch
 
 Dự án bao gồm 3 phần chính:
 
 - **Frontend** (React)
-- **Backend** (Node.js/Express)
-- **Hệ thống gợi ý** (Flask + MongoDB + Machine Learning)
+- **Backend** (Node.js / Express)
+- **Recommend System** (Flask + MongoDB + Machine Learning)
+
+## 📰 Tính Năng Newsfeed
+
+![Ảnh tổng quan](./images/Newsfeed.png)
 
 ---
 
 ## 🖥️ Frontend (React)
 
-### Bước 1: Di chuyển vào thư mục `frontend`
+### 📌 Bước 1: Di chuyển vào thư mục `frontend`
 
+```bash
 cd frontend
+```
 
 ### Bước 2: Cài đặt thư viện
 
@@ -23,7 +29,7 @@ npm install
 npm run dev
 Ứng dụng sẽ chạy tại địa chỉ: http://localhost:5173
 
-## Backend (Node.js + Express)
+## 🔧 Backend (Node.js + Express)
 
 ### Bước 1: Di chuyển vào thư mục backend
 
@@ -38,13 +44,13 @@ Chuẩn bị MongoDB tạo database name my-social-network
 ### Bước 3: Chạy server
 
 npm run dev
-Server backend mặc định chạy tại: http://localhost:5000 (tùy theo cấu hình)
+Server backend mặc định chạy tại: http://localhost:4000 (tùy theo cấu hình)
 
 ## 🤖 Hệ Thống Gợi Ý (Flask + MongoDB)
 
 ### Bước 1: Di chuyển vào thư mục hệ thống gợi ý
 
-cd hethonggoiy/VietNam-Travel-Recommendation-System
+cd ./Recommend
 
 ### Bước 2: Cài đặt thư viện Python
 
@@ -52,7 +58,7 @@ pip install flask pymongo scikit-learn flask-cors
 
 ### Bước 3: Chạy ứng dụng Flask
 
-python app3.py
+python app.py
 
 # Flask app sẽ chạy tại: http://localhost:5001 (tùy theo cài đặt trong app3.py)
 

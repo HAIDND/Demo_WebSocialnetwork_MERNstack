@@ -6,7 +6,7 @@ import StartStreamDialog from "./StartStreamDialog";
 import { useNavigate } from "react-router-dom";
 import { CurrentUser } from "~/context/GlobalContext";
 
-import { LivestreamContext } from "~/context/LivestreamContext";
+import { LivestreamContext } from "~/context/LiveContext";
 
 const LiveStreamContainer = () => {
   const [liveRooms, setLiveRooms] = useState([]);

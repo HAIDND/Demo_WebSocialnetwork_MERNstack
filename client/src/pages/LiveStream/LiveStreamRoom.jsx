@@ -28,7 +28,7 @@ import {
 import { SocketContext } from "~/context/SocketContext";
 import { CurrentUser } from "~/context/GlobalContext";
 import { VideoCallContext } from "~/context/VideoCallContext";
-import { LivestreamContext } from "~/context/LivestreamContext";
+import { LivestreamContext } from "~/context/LiveContext";
 
 const LiveStreamRoom = () => {
   const { socket } = useContext(SocketContext);

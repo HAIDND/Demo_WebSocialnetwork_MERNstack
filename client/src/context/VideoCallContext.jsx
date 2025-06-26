@@ -8,7 +8,7 @@ import React, {
 import socket from "~/context/SocketInitial";
 import Peer from "simple-peer/simplepeer.min.js";
 import { SocketContext } from "./SocketContext";
-import { LivestreamProvider } from "./LivestreamContext";
+import { LivestreamProvider } from "./LiveContext";
 
 const VideoCallContext = createContext();
 
