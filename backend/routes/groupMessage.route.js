@@ -3,7 +3,7 @@ const {
   getGroupMessage,
   postGroupMessage,
   recallGroupMessage,
-} = require("../controllers/groupMesssageController");
+} = require("../controllers/groupMesssage.controller");
 const authenticateToken = require("../middlewares/authenticateToken");
 const upload = require("../config/multerConfig");
 

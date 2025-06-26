@@ -5,7 +5,7 @@ const Friendship = require("../models/Friendship"); // Adjust the path as necess
 const {
   createNotification,
   sendNotificationsToFriends,
-} = require("./notificationController");
+} = require("./notification.controller");
 const {
   createPost,
   likePost,

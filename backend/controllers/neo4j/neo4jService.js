@@ -1,21 +1,12 @@
 const neo4j = require("neo4j-driver");
-
-// Environment variables thay vì hardcode
-// const NEO4J_URI =
-//   process.env.NEO4J_URI || "neo4j+s://cbda0561.databases.neo4j.io";
-// const NEO4J_USER = process.env.NEO4J_USER || "neo4j";
-// const NEO4J_PASSWORD =
-//   process.env.NEO4J_PASSWORD || "Fi5DRyCzD0-iutQsD4PJf8xX7SUOT8cFe5uf_xXcuH4";
+const dotenv = require("dotenv");
+dotenv.config();
 //key
-const NEO4J_URI = "neo4j+s://cbda0561.databases.neo4j.io";
-const NEO4J_USER = "neo4j";
-const NEO4J_PASSWORD = "Fi5DRyCzD0-iutQsD4PJf8xX7SUOT8cFe5uf_xXcuH4";
-// Kết nối đến database Neo4j
-// const driver = neo4j.driver(
-//   NEO4J_URI, // Thay bằng URL của bạn
-//   neo4j.auth.basic(NEO4J_USER, NEO4J_PASSWORD) // Thay bằng username và password của bạn
-// );
-
+const NEO4J_URI =
+  "neo4j+s://cbda0561.databases.neo4j.io" || process.env.NEO4J_URI;
+const NEO4J_USER = "neo4j" || process.env.NEO4J_USER;
+const NEO4J_PASSWORD =
+  "Fi5DRyCzD0-iutQsD4PJf8xX7SUOT8cFe5uf_xXcuH4" || process.env.NEO4J_PASSWORD;
 // Singleton pattern cho driver
 let driver;
 
@@ -163,32 +154,6 @@ async function closeConnection() {
 process.on("SIGINT", closeConnection);
 process.on("SIGTERM", closeConnection);
 module.exports = {
-  // User management
-  // createUser,
-  // getUserById,
-  // updateUser,
-  // getUserStats,
-
-  // // Friendship
-  // sendFriendRequest,
-  // acceptFriendRequest,
-  // rejectFriendRequest,
-  // unfriend,
-
-  // // Follow system
-  // followUser,
-  // unfollowUser,
-
-  // // Posts
-  // createPost,
-  // likePost,
-  // unlikePost,
-  // createComment,
-
-  // // Recommendations
-  // getFriendSuggestions,
-  // getNewsFeed,
-
   // // Search
   searchUsers,
   searchPosts,

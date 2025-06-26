@@ -1,7 +1,7 @@
 const User = require("../models/User");
 // const Message = require("../models/Message"); // Import Message model
 const socketIO = require("socket.io");
-const socketLiveStream = require("./socketLiveStream");
+const socketLiveStream = require("./socketLive");
 //map user online
 const onlineUsers = new Map();
 // Danh sách các phòng chat
@@ -46,17 +46,6 @@ const setupSocket = (server) => {
       const friendSocketId = onlineUsers.get(friendId) || null;
       callback(friendSocketId);
     });
-    // socket disconnect
-    // socket.on("private_message", async ({ senderId, receiverId, message }) => {
-    //   const receiverSocketId = onlineUsers[receiverId];
-
-    //   if (receiverSocketId) {
-    //     io.to(receiverSocketId).emit("private_message", { senderId, message });
-    //     console.log(`Message from ${senderId} to ${receiverId}: ${message}`);
-    //   } else {
-    //     console.log(`User ${receiverId} is offline.`);
-    //   }
-    // });
 
     socket.on("disconnect", () => {
       for (const [userId, socketId] of onlineUsers.entries()) {
@@ -96,101 +85,6 @@ function personalChat(io, socket) {
     }
   });
 }
-//chat group
-// const groupRooms = {}; // Global object to manage group rooms
-// const onlineUsers = {}; // Bạn cần setup từ login/socket middleware
-//old code chta group
-// function groupChat(io, socket) {
-//   const updateRooms = () => {
-//     io.emit("updateLiveRooms", Object.values(groupRooms));
-//   };
-
-//   // Tạo phòng group nếu chưa có
-//   const handleCreateRoom = ({ groupId, memberId }) => {
-//     if (!groupRooms[groupId]) {
-//       groupRooms[groupId] = {
-//         groupId,
-//         members: [memberId],
-//         viewers: [], // Danh sách socket đang online trong group
-//       };
-//     }
-//     socket.join(groupId);
-//     updateRooms();
-//     console.log("Created group room:", groupRooms[groupId]);
-//   };
-
-//   // Tham gia phòng group (khi online)
-//   const handleJoinRoom = ({ groupId, memberId }) => {
-//     const room = groupRooms[groupId];
-//     if (room) {
-//       socket.join(groupId);
-
-//       // Đánh dấu socket online
-//       const alreadyViewer = room.viewers.find((v) => v.id === socket.id);
-//       if (!alreadyViewer) {
-//         room.viewers.push({
-//           id: socket.id,
-//           userId: memberId,
-//           joinTime: new Date(),
-//         });
-//       }
-
-//       // Emit thông tin người vừa tham gia
-//       io.to(groupId).emit("viewerJoined", {
-//         viewerId: socket.id,
-//         userId: memberId,
-//         count: room.viewers.length,
-//       });
-
-//       io.to(groupId).emit("roomInfo", room);
-//       console.log("User joined group:", groupId, "Socket:", socket.id);
-//     }
-//   };
-
-//   // Rời phòng group
-//   const handleLeaveRoom = ({ groupId }) => {
-//     const room = groupRooms[groupId];
-//     if (!room) return;
-
-//     socket.leave(groupId);
-//     room.viewers = room.viewers.filter((viewer) => viewer.id !== socket.id);
-
-//     // Nếu không còn ai trong phòng
-//     if (room.viewers.length === 0) {
-//       delete groupRooms[groupId];
-//       console.log(`Group room ${groupId} deleted (no viewers)`);
-//     } else {
-//       io.to(groupId).emit("viewerLeft", {
-//         viewerId: socket.id,
-//         count: room.viewers.length,
-//       });
-//     }
-
-//     updateRooms();
-//   };
-
-//   // Nhận và gửi tin nhắn group
-//   const handleGroupChat = ({ groupId, message, senderId, senderName }) => {
-//     const timestamp = new Date().toISOString();
-
-//     io.to(groupId).emit("groupChat", {
-//       groupId,
-//       message,
-//       senderId,
-//       senderName,
-//       timestamp,
-//     });
-
-//     console.log(`[Group ${groupId}] ${senderName}: ${message}`);
-//   };
-
-//   // Đăng ký các sự kiện
-//   socket.on("createGroupRoom", handleCreateRoom);
-//   socket.on("joinRoom", handleJoinRoom);
-//   socket.on("leaveRoom", handleLeaveRoom);
-//   socket.on("groupChat", handleGroupChat);
-// }
-//;new code group chat 12-05
 function groupChat(io, socket) {
   const updateRooms = () => {
     io.emit("updateLiveRooms", Object.values(groupRooms));
@@ -336,9 +230,6 @@ const emitEventToUser = (userEmail, eventName, data) => {
 // ===================== NOTIFICATION SYSTEM =====================
 async function createAndEmitNotification(notificationData) {
   try {
-    // You'll need to import your User model here
-    // const User = require("../models/User");
-
     // Get user email from userId
     console.log(notificationData);
     const user = notificationData.email;
@@ -348,12 +239,6 @@ async function createAndEmitNotification(notificationData) {
       console.log(`User not found: ${notificationData.email}`);
       return;
     }
-
-    // Create notification in database
-    // await createNotification(notificationData);
-
-    // Emit real-time notification
-    // emitNotificationToUser(user.email, notificationData);
 
     // For now, using userId directly (you can modify based on your User model)
     emitNotificationToUser(notificationData.email, notificationData);
@@ -387,16 +272,6 @@ function emitNotificationToUser(userEmail, notificationData) {
  */
 async function emitNotificationToUserId(userId, notificationData) {
   try {
-    // You'll need to import your User model here
-    // const User = require("../models/User");
-    // const user = await User.findById(userId).select('email');
-
-    // if (user) {
-    //   emitNotificationToUser(user.email, notificationData);
-    // } else {
-    //   console.log(`User not found: ${userId}`);
-    // }
-
     // For now, using userId directly
     emitNotificationToUser(userId, notificationData);
   } catch (error) {

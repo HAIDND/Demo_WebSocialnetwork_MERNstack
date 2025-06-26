@@ -6,7 +6,7 @@ const {
   markAllAsRead,
   deleteNotification,
   getUnreadCount,
-} = require("../controllers/notificationController");
+} = require("../controllers/notification.controller");
 const authenticateToken = require("../middlewares/authenticateToken");
 // Lấy thông báo
 router.get("/:userId", authenticateToken, getUserNotifications);

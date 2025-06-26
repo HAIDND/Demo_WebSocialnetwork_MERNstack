@@ -1,3 +1,9 @@
+# backend Vie Social network
 
--- install clusster to run mutiple core
-npm install "@socket.io/cluster-adapter"
+## Install system
+
+### Step 1: cd ...project/.../backend/
+
+### Step 2: npm install
+
+### Step 3: npm run dev

@@ -9,7 +9,7 @@ const {
   unfriend,
 } = require("./neo4j/Neo4jFriendshipController");
 const { createRelationship } = require("./neo4j/neo4jService");
-const { createNotification } = require("./notificationController");
+const { createNotification } = require("./notification.controller");
 
 // POST /api/friends/request
 // exports.sendFriendRequest = async (req, res) => {

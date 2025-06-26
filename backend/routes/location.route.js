@@ -3,7 +3,7 @@ const router = express.Router();
 const upload = require("../config/multerConfig");
 const authenticateToken = require("../middlewares/authenticateToken");
 
-const localtionController = require("../controllers/locationsController");
+const localtionController = require("../controllers/locations.controller");
 
 // API tạo bài viết
 // router.post(

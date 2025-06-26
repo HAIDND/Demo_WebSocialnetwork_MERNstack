@@ -38,9 +38,6 @@ exports.sendMessage = async (req, res) => {
     // Lưu tin nhắn vào cơ sở dữ liệu
     await newMessage.save();
 
-    // Tạo thông báo cho người tạo bài viết
-    // const user = await User.findById(senderId).select("username"); // Lấy trường 'name' của người dùng
-
     // **Tạo thông báo**receiverId, receiverEmail, content
     const temp = {
       senderId: senderId,
@@ -73,11 +70,6 @@ exports.getMessages = async (req, res) => {
     const { limit = 10, page = 0 } = req.query;
     console.log("page", page);
     console.log("limit", limit);
-
-    // let messages = await GroupMessage.find({ groupId })
-    //   .sort({ createdAt: -1 })
-    //   .skip(parseInt(page) * parseInt(limit))
-    //   .limit(parseInt(limit));
     const messages = await Message.find({
       $or: [
         { senderId: currentUserId, receiverId: userId },
@@ -88,18 +80,6 @@ exports.getMessages = async (req, res) => {
       .skip(parseInt(page) * parseInt(limit))
       .limit(parseInt(limit));
 
-    // const formattedMessages = messages.map((message) => {
-    //   let formatTime = moment(message.createdAt).fromNow();
-    //   // if (message.senderId.toString() === currentUserId) {
-    //   //   formatTime = moment(message.createdAt).fromNow();
-    //   // } else {
-    //   //   formatTime = moment(message.createdAt).format("YYYY-MM-DD");
-    //   // }
-    //   return {
-    //     ...message.toObject(),
-    //     createdAt: formatTime, // moment(message.createdAt).fromNow() , // Định dạng ngày giờ
-    //   };
-    // });
     const formattedMessages = messages.map((message) => {
       const now = moment();
       const created = moment(message.createdAt);

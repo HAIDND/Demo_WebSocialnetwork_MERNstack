@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const upload = require("../config/multerConfig");
-const postController = require("../controllers/postController");
+const postController = require("../controllers/post.controller");
 const authenticateToken = require("../middlewares/authenticateToken");
 
 // API tạo bài viết
